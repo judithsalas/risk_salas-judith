@@ -55,3 +55,25 @@ Este programa extiende las funcionalidades del simulador de ataques en el juego 
 3. Ejecuta el programa con el siguiente comando:
    ```bash
    python risk_attack_strategy.py
+   
+## Ejemplo de salida
+
+Territorios ordenados por prioridad (más débiles primero):
+[{'defense': 10, 'terrain': 'plano'}, {'defense': 12, 'terrain': 'boscoso'}, {'defense': 15, 'terrain': 'montañoso'}]
+
+Combinaciones de tropas posibles:
+{'inf': 1, 'cav': 1, 'art': 3}
+{'inf': 2, 'cav': 2, 'art': 2}
+...
+
+Representación del tablero:
+Territory 1: Defensa = 10, Terreno = plano
+Territory 2: Defensa = 12, Terreno = boscoso
+Territory 3: Defensa = 15, Terreno = montañoso
+
+Evento aleatorio: Tormenta afecta la caballería (-10% fuerza)
+El ataque falló.
+
+Evento aleatorio: Clima favorable aumenta la artillería (+10% fuerza)
+¡Territorio conquistado! Quedan 3 puntos de ataque.
+
