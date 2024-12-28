@@ -1,4 +1,5 @@
 import itertools
+import random
 
 def generate_combinations(resources, costs, min_units):
     """Genera todas las combinaciones posibles de tropas respetando los recursos disponibles."""
@@ -20,39 +21,39 @@ def calculate_attack_strength(troops, strengths):
             troops['cav'] * strengths['cav'] +
             troops['art'] * strengths['art'])
 
-def optimize_combinations(combinations, territories, strengths):
+def simulate_attack(troops, territory, strengths, probabilities):
     """
-    Optimiza las combinaciones de tropas para maximizar las conquistas usando programación dinámica.
-    Devuelve la mejor combinación de tropas y las conquistas logradas.
+    Simula un ataque a un territorio.
+    Aplica probabilidades y calcula si el ataque tiene éxito.
     """
-    max_conquests = 0
-    best_combination = None
+    attack_strength = calculate_attack_strength(troops, strengths)
+    terrain = territory['terrain']
+    success_chance = probabilities[terrain]
+    # Aplicar probabilidades al ataque
+    if random.random() <= success_chance:
+        if attack_strength >= territory['defense']:
+            return True, attack_strength - territory['defense']
+    return False, attack_strength
 
-    for combo in combinations:
-        attack_strength = calculate_attack_strength(combo, strengths)
-        conquered = 0
+def handle_events():
+    """Genera eventos aleatorios que afectan las tropas o los territorios."""
+    events = [
+        "Tormenta afecta la caballería (-10% fuerza)",
+        "Rebeldes refuerzan un territorio (+5 defensa)",
+        "Clima favorable aumenta la artillería (+10% fuerza)"
+    ]
+    event = random.choice(events)
+    print(f"Evento aleatorio: {event}")
+    return event
 
-        for territory in territories:
-            terrain_type = territory['terrain']
-            # Ajustar la fuerza de ataque basada en el tipo de terreno
-            if terrain_type == 'plano':
-                attack_strength += combo['cav'] * 1  # Caballería tiene ventaja
-            elif terrain_type == 'montañoso':
-                attack_strength += combo['art'] * 1  # Artillería tiene ventaja
-            elif terrain_type == 'boscoso':
-                attack_strength += combo['inf'] * 1  # Infantería tiene ventaja
-
-            if attack_strength >= territory['defense']:
-                conquered += 1
-                attack_strength -= territory['defense']
-            else:
-                break
-
-        if conquered > max_conquests:
-            max_conquests = conquered
-            best_combination = combo
-
-    return best_combination, max_conquests
+def apply_event_effects(event, troops, territory):
+    """Aplica los efectos del evento a las tropas o al territorio."""
+    if "Tormenta" in event:
+        troops['cav'] = max(0, troops['cav'] - 1)
+    elif "Rebeldes" in event:
+        territory['defense'] += 5
+    elif "Clima favorable" in event:
+        troops['art'] += 1
 
 def represent_board(territories):
     """Representa el tablero con una estructura de datos."""
@@ -70,6 +71,7 @@ def main():
         {'defense': 15, 'terrain': 'montañoso'},
         {'defense': 12, 'terrain': 'boscoso'}
     ]
+    probabilities = {'plano': 0.8, 'montañoso': 0.6, 'boscoso': 0.7}
 
     # Priorizar territorios más débiles
     territories = prioritize_territories(territories)
@@ -88,10 +90,17 @@ def main():
     for territory, (defense, terrain) in board.items():
         print(f"{territory}: Defensa = {defense}, Terreno = {terrain}")
 
-    # Optimizar combinaciones
-    best_combination, max_conquests = optimize_combinations(troop_combinations, territories, strengths)
-    print("\nMejor combinación optimizada:")
-    print(f"Tropas: {best_combination}, Conquistas máximas: {max_conquests}")
+    # Simulación de ataques con eventos aleatorios
+    for combo in troop_combinations:
+        print(f"\nSimulando ataques con combinación: {combo}")
+        for territory in territories:
+            event = handle_events()
+            apply_event_effects(event, combo, territory)
+            success, remaining_strength = simulate_attack(combo, territory, strengths, probabilities)
+            if success:
+                print(f"¡Territorio conquistado! Quedan {remaining_strength} puntos de ataque.")
+            else:
+                print("El ataque falló.")
 
 if __name__ == "__main__":
     main()
