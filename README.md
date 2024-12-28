@@ -1,13 +1,20 @@
-# Planificación de Ataques en el Juego Risk
+# Planificación de Ataques en el Juego Risk con Estrategias de Terreno
 
 ## Descripción
-Este programa resuelve el problema de planificación de ataques en el juego Risk utilizando combinaciones óptimas de tropas y simulaciones de ataque a territorios enemigos. Incluye la generación de combinaciones de tropas basadas en recursos limitados, permutaciones del orden de ataque a los territorios y simulaciones de resultados de las batallas.
+Este programa simula la planificación de ataques en el juego Risk, incorporando:
+- Generación de combinaciones de tropas basadas en recursos limitados.
+- Optimización mediante programación dinámica para maximizar las conquistas.
+- Prioridad para atacar territorios más débiles primero.
+- Estrategias basadas en el tipo de terreno para priorizar ciertos tipos de tropas.
 
 ## Funcionalidades Principales
-1. **Generación de combinaciones de tropas:** Calcula todas las combinaciones posibles de tropas respetando los recursos disponibles y las restricciones mínimas de unidades.
-2. **Permutaciones del orden de ataque:** Genera todas las permutaciones posibles para el orden en el que se atacan los territorios enemigos.
-3. **Representación del tablero:** Representa el tablero con una estructura de datos basada en diccionarios.
-4. **Simulaciones de ataque:** Evalúa el resultado de las combinaciones de tropas y el orden de ataque para determinar los territorios conquistados.
+1. **Generación de combinaciones de tropas:** Calcula todas las combinaciones posibles respetando los recursos disponibles y las restricciones mínimas de tropas.
+2. **Optimización de conquistas:** Utiliza programación dinámica para seleccionar las combinaciones de tropas que maximizan los territorios conquistados.
+3. **Prioridad a territorios más débiles:** Ordena los territorios enemigos por fuerza de defensa en orden ascendente.
+4. **Estrategias de terreno:** Ajusta la fuerza de ataque según el tipo de terreno:
+   - Caballería tiene ventaja en terrenos planos.
+   - Artillería tiene ventaja en terrenos montañosos.
+   - Infantería tiene ventaja en terrenos boscosos.
 
 ## Datos Iniciales
 - **Recursos disponibles:** 20 puntos.
@@ -19,10 +26,10 @@ Este programa resuelve el problema de planificación de ataques en el juego Risk
   - Infantería: 1 de fuerza.
   - Caballería: 3 de fuerza.
   - Artillería: 5 de fuerza.
-- **Defensas de los territorios enemigos:**
-  - Territorio 1: Defensa 10.
-  - Territorio 2: Defensa 15.
-  - Territorio 3: Defensa 12.
+- **Territorios enemigos:**
+  - Territorio 1: Defensa = 10, Terreno = Plano.
+  - Territorio 2: Defensa = 15, Terreno = Montañoso.
+  - Territorio 3: Defensa = 12, Terreno = Boscoso.
 - **Restricciones mínimas:** Al menos 1 unidad de infantería, caballería y artillería.
 
 ## Uso
