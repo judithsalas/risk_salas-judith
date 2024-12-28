@@ -10,9 +10,9 @@ def generate_combinations(resources, costs, min_units):
                     combinations.append({'inf': inf, 'cav': cav, 'art': art})
     return combinations
 
-def generate_permutations(territories):
-    """Genera todas las permutaciones posibles para el orden de ataque."""
-    return list(itertools.permutations(territories))
+def prioritize_territories(territories):
+    """Ordena los territorios por fuerza de defensa (priorizando los más débiles)."""
+    return sorted(territories, key=lambda x: x['defense'])
 
 def calculate_attack_strength(troops, strengths):
     """Calcula la fuerza total de ataque según la combinación de tropas."""
@@ -20,9 +20,43 @@ def calculate_attack_strength(troops, strengths):
             troops['cav'] * strengths['cav'] +
             troops['art'] * strengths['art'])
 
+def optimize_combinations(combinations, territories, strengths):
+    """
+    Optimiza las combinaciones de tropas para maximizar las conquistas usando programación dinámica.
+    Devuelve la mejor combinación de tropas y las conquistas logradas.
+    """
+    max_conquests = 0
+    best_combination = None
+
+    for combo in combinations:
+        attack_strength = calculate_attack_strength(combo, strengths)
+        conquered = 0
+
+        for territory in territories:
+            terrain_type = territory['terrain']
+            # Ajustar la fuerza de ataque basada en el tipo de terreno
+            if terrain_type == 'plano':
+                attack_strength += combo['cav'] * 1  # Caballería tiene ventaja
+            elif terrain_type == 'montañoso':
+                attack_strength += combo['art'] * 1  # Artillería tiene ventaja
+            elif terrain_type == 'boscoso':
+                attack_strength += combo['inf'] * 1  # Infantería tiene ventaja
+
+            if attack_strength >= territory['defense']:
+                conquered += 1
+                attack_strength -= territory['defense']
+            else:
+                break
+
+        if conquered > max_conquests:
+            max_conquests = conquered
+            best_combination = combo
+
+    return best_combination, max_conquests
+
 def represent_board(territories):
     """Representa el tablero con una estructura de datos."""
-    board = {f'Territory {i+1}': defense for i, defense in enumerate(territories)}
+    board = {f'Territory {i+1}': (territory['defense'], territory['terrain']) for i, territory in enumerate(territories)}
     return board
 
 # Datos iniciales
@@ -31,41 +65,33 @@ def main():
     costs = {'inf': 1, 'cav': 3, 'art': 5}
     strengths = {'inf': 1, 'cav': 3, 'art': 5}
     min_units = {'inf': 1, 'cav': 1, 'art': 1}
-    territories = [10, 15, 12]  # Defensas de los territorios enemigos
+    territories = [
+        {'defense': 10, 'terrain': 'plano'},
+        {'defense': 15, 'terrain': 'montañoso'},
+        {'defense': 12, 'terrain': 'boscoso'}
+    ]
+
+    # Priorizar territorios más débiles
+    territories = prioritize_territories(territories)
+    print("Territorios ordenados por prioridad (más débiles primero):")
+    print(territories)
 
     # Generar combinaciones de tropas
     troop_combinations = generate_combinations(resources, costs, min_units)
-    print("Combinaciones de tropas posibles:")
+    print("\nCombinaciones de tropas posibles:")
     for combo in troop_combinations:
         print(combo)
-
-    # Generar permutaciones del orden de ataque
-    attack_orders = generate_permutations(territories)
-    print("\nPermutaciones de orden de ataque:")
-    for order in attack_orders:
-        print(order)
 
     # Representar el tablero
     board = represent_board(territories)
     print("\nRepresentación del tablero:")
-    for territory, defense in board.items():
-        print(f"{territory}: Defensa = {defense}")
+    for territory, (defense, terrain) in board.items():
+        print(f"{territory}: Defensa = {defense}, Terreno = {terrain}")
 
-    # Calcular y optimizar ataque
-    print("\nSimulaciones de ataques:")
-    for combo in troop_combinations:
-        attack_strength = calculate_attack_strength(combo, strengths)
-        print(f"Con {combo}, fuerza de ataque total: {attack_strength}")
-        
-        for order in attack_orders:
-            print(f"  Orden de ataque: {order}")
-            for i, defense in enumerate(order):
-                if attack_strength >= defense:
-                    print(f"    Territorio {i+1} conquistado! (Defensa {defense})")
-                    attack_strength -= defense
-                else:
-                    print(f"    Territorio {i+1} no conquistado. (Defensa {defense})")
-                    break
+    # Optimizar combinaciones
+    best_combination, max_conquests = optimize_combinations(troop_combinations, territories, strengths)
+    print("\nMejor combinación optimizada:")
+    print(f"Tropas: {best_combination}, Conquistas máximas: {max_conquests}")
 
 if __name__ == "__main__":
     main()
